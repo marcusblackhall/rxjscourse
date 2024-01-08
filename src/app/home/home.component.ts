@@ -1,10 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Course, sortCoursesBySeqNo} from '../model/course';
-import {interval, noop, Observable, of, throwError, timer} from 'rxjs';
-import {catchError, delay, delayWhen, filter, finalize, map, retryWhen, shareReplay, tap} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
-import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import { CourseService } from '../courses/course.service';
 
 
 @Component({
@@ -14,44 +12,41 @@ import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 })
 export class HomeComponent implements OnInit {
 
-  beginnerCourses: Course[];
+  beginnerCourses$: Observable<Course[]>;
 
-  advancedCourses: Course[];
+  advancedCourses$: Observable<Course[]>;
 
 
-  constructor(private http: HttpClient, private dialog: MatDialog) {
+  constructor(private courseService:CourseService) {
 
   }
 
   ngOnInit() {
 
-    this.http.get('/api/courses')
-      .subscribe(
-        res => {
+   this.reloadCourses();
 
-          const courses: Course[] = res["payload"].sort(sortCoursesBySeqNo);
-
-          this.beginnerCourses = courses.filter(course => course.category == "BEGINNER");
-
-          this.advancedCourses = courses.filter(course => course.category == "ADVANCED");
-
-        });
+   
 
   }
 
-  editCourse(course: Course) {
+  reloadCourses(){
+    let courseService$ =this.courseService.loadAllCourses()
+    .pipe(
+      map(courses => courses.sort(sortCoursesBySeqNo))
+    );
 
-    const dialogConfig = new MatDialogConfig();
+    this.beginnerCourses$ = courseService$.pipe(
+      map(courses => courses.filter(c => c.category == "BEGINNER"))
 
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.width = "400px";
+    );
 
-    dialogConfig.data = course;
+    this.advancedCourses$ = courseService$.pipe(
+      map(courses => courses.filter(c => c.category == "ADVANCED"))
 
-    const dialogRef = this.dialog.open(CourseDialogComponent, dialogConfig);
-
+    );
   }
+
+  
 
 }
 
