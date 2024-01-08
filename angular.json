@@ -2,12 +2,13 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
+
   "projects": {
     "reactiveangularcourse": {
 
       "root": "",
       "sourceRoot": "src",
-      "prefix" : "app",
+      "prefix": "app",
       "projectType": "application",
       "architect": {
         "build": {
