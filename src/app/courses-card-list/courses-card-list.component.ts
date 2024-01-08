@@ -17,7 +17,7 @@ export class CoursesCardListComponent {
 
   @Output()
   coursesChanged = new EventEmitter();
-  
+
   constructor(private dialog: MatDialog){}
 
 
