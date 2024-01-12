@@ -9,8 +9,7 @@ import { MessagesService } from './messages/messages.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [
-    LoadingService,
-    MessagesService
+
   ]
 })
 export class AppComponent implements  OnInit {
