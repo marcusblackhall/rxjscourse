@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { Course } from '../model/course';
-import { map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { Lesson } from '../model/lesson';
 
 @Injectable({
@@ -29,6 +29,30 @@ export class CoursesService {
       .pipe(
         shareReplay()
       );
+   }
+
+   loadCourseById(courseId:number) :Observable<Course>{
+       
+        return this.http.get<Course>(`/api/courses/${courseId}`).pipe(
+          tap( (res:Course) => console.log(`got the course with id ${res.id}`,res)),
+          shareReplay(),
+          catchError(err => throwError(err))
+        );
+
+   }
+
+   lessonsForCourse(courseId:number) :Observable<Lesson[]>{
+    return this.http.get<Lesson[]>("/api/lessons",{
+      params : {
+        courseId: courseId.toString(),
+        pageSize: 100
+      }
+
+    }).pipe(
+      map( res => res['payload']),
+      shareReplay()
+    );
+
    }
 
    searchLessons(search:string) : Observable<Lesson[]>{

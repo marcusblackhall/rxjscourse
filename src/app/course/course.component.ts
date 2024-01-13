@@ -1,6 +1,6 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {Course} from '../model/course';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Course } from '../model/course';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -13,9 +13,14 @@ import {
   withLatestFrom,
   concatAll, shareReplay, catchError
 } from 'rxjs/operators';
-import {merge, fromEvent, Observable, concat, throwError} from 'rxjs';
-import {Lesson} from '../model/lesson';
+import { merge, fromEvent, Observable, concat, throwError, combineLatest } from 'rxjs';
+import { Lesson } from '../model/lesson';
+import { CoursesService } from '../services/courses.service';
 
+interface CourseData {
+  course: Course;
+  lessons: Lesson[];
+}
 
 @Component({
   selector: 'course',
@@ -24,12 +29,26 @@ import {Lesson} from '../model/lesson';
 })
 export class CourseComponent implements OnInit {
 
-  course: Course;
+  data$: Observable<CourseData>;
 
-  lessons: Lesson[];
+  constructor(private route: ActivatedRoute,
+    private courseService: CoursesService
+  ) {
+    const courseId = +route.snapshot.paramMap.get("courseId");
+    const course$ = this.courseService.loadCourseById(courseId);
+    const lessons$ = this.courseService.lessonsForCourse(courseId);
 
-  constructor(private route: ActivatedRoute) {
-
+    this.data$ = combineLatest([course$, lessons$]).pipe(
+      map(
+        ([course, lessons]) => {
+          return {
+            course,
+            lessons
+          }
+        }
+      ),
+      tap(console.log)
+    );
 
   }
 
