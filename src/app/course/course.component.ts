@@ -1,19 +1,12 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Course } from '../model/course';
 import {
-  debounceTime,
-  distinctUntilChanged,
   startWith,
   tap,
-  delay,
-  map,
-  concatMap,
-  switchMap,
-  withLatestFrom,
-  concatAll, shareReplay, catchError
+  map
 } from 'rxjs/operators';
-import { merge, fromEvent, Observable, concat, throwError, combineLatest } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { Lesson } from '../model/lesson';
 import { CoursesService } from '../services/courses.service';
 
@@ -27,7 +20,7 @@ interface CourseData {
   templateUrl: './course.component.html',
   styleUrls: ['./course.component.css']
 })
-export class CourseComponent implements OnInit {
+export class CourseComponent {
 
   data$: Observable<CourseData>;
 
@@ -36,9 +29,9 @@ export class CourseComponent implements OnInit {
   ) {
     const courseId = +route.snapshot.paramMap.get("courseId");
     const course$ = this.courseService.loadCourseById(courseId)
-    .pipe(startWith(null));
+      .pipe(startWith(null));
     const lessons$ = this.courseService.lessonsForCourse(courseId)
-    .pipe(startWith([]));
+      .pipe(startWith([]));
 
     this.data$ = combineLatest([course$, lessons$]).pipe(
       map(
@@ -54,11 +47,7 @@ export class CourseComponent implements OnInit {
 
   }
 
-  ngOnInit() {
 
-
-
-  }
 
 
 }
